@@ -14,10 +14,10 @@ const isAuthenticated = (req, res, next) => {
 router.post("/api/cars/create", isAuthenticated, async (req, res) => {
   try {
     const newCar = new cars({
-      brand: req.fields.brand,
-      model: req.fields.model,
-      year: req.fields.year,
-      color: req.fields.color,
+      brand: req.body.brand,
+      model: req.body.model,
+      year: req.body.year,
+      color: req.body.color,
     });
     res.status(200).json(newCar);
   } catch (e) {
