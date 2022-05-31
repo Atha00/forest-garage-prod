@@ -19,6 +19,7 @@ router.post("/api/cars/create", isAuthenticated, async (req, res) => {
       year: req.body.year,
       color: req.body.color,
     });
+    await newCar.save();
     res.status(200).json(newCar);
   } catch (e) {
     console.log(e.message);
