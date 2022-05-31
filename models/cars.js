@@ -10,7 +10,10 @@ module.exports = (mongoose, Mongoose) => {
       model: String,
       year: Number,
       color: String,
-      image: String,
+      image: {
+        type: mongoose.Schema.Types.Mixed,
+        default: {},
+      },
     },
     {
       timestamps: false,
