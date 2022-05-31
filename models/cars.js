@@ -11,7 +11,7 @@ module.exports = (mongoose, Mongoose) => {
       year: Number,
       color: String,
       image: {
-        type: Schema.Types.Mixed,
+        type: schema.Types.Mixed,
         default: {},
       },
     },
