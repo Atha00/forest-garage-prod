@@ -1,23 +1,25 @@
-const express = require('express');
-const requireAll = require('require-all');
-const path = require('path');
-const cookieParser = require('cookie-parser');
-const bodyParser = require('body-parser');
-const cors = require('cors');
-const jwt = require('express-jwt');
-const morgan = require('morgan');
+const express = require("express");
+const requireAll = require("require-all");
+const path = require("path");
+const cookieParser = require("cookie-parser");
+const bodyParser = require("body-parser");
+const cors = require("cors");
+const jwt = require("express-jwt");
+const morgan = require("morgan");
 const {
   errorHandler,
   ensureAuthenticated,
   PUBLIC_ROUTES,
-} = require('forest-express-mongoose');
+} = require("forest-express-mongoose");
 
 const app = express();
+
+const carsRoutes = require("./api/cars");
 
 let allowedOrigins = [/\.forestadmin\.com$/, /localhost:\d{4}$/];
 
 if (process.env.CORS_ORIGINS) {
-  allowedOrigins = allowedOrigins.concat(process.env.CORS_ORIGINS.split(','));
+  allowedOrigins = allowedOrigins.concat(process.env.CORS_ORIGINS.split(","));
 }
 
 const corsConfig = {
@@ -26,36 +28,43 @@ const corsConfig = {
   credentials: true,
 };
 
-app.use(morgan('tiny'));
+app.use(morgan("tiny"));
 // Support for request-private-network as the `cors` package
 // doesn't support it by default
 // See: https://github.com/expressjs/cors/issues/236
 app.use((req, res, next) => {
-  if (req.headers['access-control-request-private-network']) {
-    res.setHeader('access-control-allow-private-network', 'true');
+  if (req.headers["access-control-request-private-network"]) {
+    res.setHeader("access-control-allow-private-network", "true");
   }
   next(null);
 });
-app.use('/forest/authentication', cors({
-  ...corsConfig,
-  // The null origin is sent by browsers for redirected AJAX calls
-  // we need to support this in authentication routes because OIDC
-  // redirects to the callback route
-  origin: corsConfig.origin.concat('null')
-}));
+app.use(
+  "/forest/authentication",
+  cors({
+    ...corsConfig,
+    // The null origin is sent by browsers for redirected AJAX calls
+    // we need to support this in authentication routes because OIDC
+    // redirects to the callback route
+    origin: corsConfig.origin.concat("null"),
+  })
+);
 app.use(cors(corsConfig));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, "public")));
 
-app.use(jwt({
-  secret: process.env.FOREST_AUTH_SECRET,
-  credentialsRequired: false,
-  algorithms: ['HS256'],
-}));
+app.use(usersRoutes);
 
-app.use('/forest', (request, response, next) => {
+app.use(
+  jwt({
+    secret: process.env.FOREST_AUTH_SECRET,
+    credentialsRequired: false,
+    algorithms: ["HS256"],
+  })
+);
+
+app.use("/forest", (request, response, next) => {
   if (PUBLIC_ROUTES.includes(request.url)) {
     return next();
   }
@@ -63,13 +72,13 @@ app.use('/forest', (request, response, next) => {
 });
 
 requireAll({
-  dirname: path.join(__dirname, 'routes'),
+  dirname: path.join(__dirname, "routes"),
   recursive: true,
-  resolve: (Module) => app.use('/forest', Module),
+  resolve: (Module) => app.use("/forest", Module),
 });
 
 requireAll({
-  dirname: path.join(__dirname, 'middlewares'),
+  dirname: path.join(__dirname, "middlewares"),
   recursive: true,
   resolve: (Module) => Module(app),
 });
