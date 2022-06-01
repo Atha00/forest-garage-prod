@@ -10,6 +10,7 @@ module.exports = (mongoose, Mongoose) => {
       model: String,
       year: Number,
       color: String,
+      distance: Number,
       image: {
         type: Mongoose.Schema.Types.Mixed,
         default: {},
